@@ -16,7 +16,7 @@ Then run remote_process_amsi_bypass.exe from cmd.exe:
 C:\Users\example\Desktop>remote_process_amsi_bypass.exe
 ```
 
-You may get an error message 'Unhandled Exception: System.AccessViolationException: Attempted to read or write protected memory.', However, AMSI should now be disabled in the PowerShell instance.
+AMSI should now be disabled in the PowerShell instance.
 
 To disable AMSI in PowerShell by loading a DLL, compile amsi_bypass_dll.cs:
 ```

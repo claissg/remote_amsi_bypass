@@ -1,0 +1,20 @@
+https://clymb3r.wordpress.com/2013/05/26/implementing-remote-loadlibrary-and-remote-getprocaddress-using-powershell-and-assembly/
+
+^was looking into using this but it turns out you can effectively implement Remote LoadLibrary and Remote GetProcAddress with Matt's trick below
+
+Matt Graeber says:
+May 26, 2013 at 9:42 pm
+Awesome post! I’m glad there’s finally someone else out there interested in low-level hacking with PowerShell.
+
+FYI, you can just call GetProcAddress in the running PowerShell process and be guaranteed that the address returned will be the same address in the remote process (as long as the module is loaded in the remote process, of course). Once one process loads a module, its address will remain fixed across all processes. For example, if process #1 was the first to load dbghelp.dll and it loaded at base address 0x40000000, then if process #2 loaded dbghelp.dll, it would be loaded at the same base address. I rely upon this trick in my Invoke-DllInjection function. You could validate my claim with the following short script:
+
+Get-Process | % { $Id = $_.Id; $_.Modules } |
+? {$_.ModuleName -eq ‘kernel32.dll’} |
+% { “Kernel32.dll Base: 0x$($_.BaseAddress.ToString(“X$([IntPtr]::Size * 2)”)) (PID: $Id)” }
+
+That will display the loaded base address of kernel32.dll. You’l find that they are all loaded at the same base address.
+
+Keep up the good work and thanks for the link to my blog! 😀
+
+Happy hacking,
+Matt
